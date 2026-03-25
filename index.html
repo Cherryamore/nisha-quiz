@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ниша-Детектив | Faceless YouTube</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+  :root {
+    --bg: #FAF7F5;
+    --text-dark: #1A1A1A;
+    --text-light: #FAF7F5;
+    --accent: #7D1128;
+    --glass-bg: rgba(250, 247, 245, 0.92);
+    --glass-dark: rgba(26, 26, 26, 0.95);
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  
+  body { background-color: var(--text-dark); color: var(--text-dark); overflow: hidden; height: 100vh; width: 100vw; }
+
+  .bg-image {
+    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-size: cover; background-position: center;
+    z-index: 0; opacity: 0; transition: opacity 1s ease;
+    animation: kenBurns 20s infinite alternate linear;
+  }
+  .bg-image.active { opacity: 0.5; }
+  @keyframes kenBurns { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+  .app-container {
+    position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column;
+    padding: 0 20px; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth;
+  }
+  
+  .app-container::-webkit-scrollbar { width: 4px; }
+  .app-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+  .screen { display: none; flex-direction: column; justify-content: flex-start; min-height: 100%; animation: fadeIn 0.5s ease; padding: 40px 0 100px 0;}
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+  .glass-panel {
+    background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px; padding: 24px; border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25); margin-bottom: 20px; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
+  }
+  .glass-panel-dark { background: var(--glass-dark); color: var(--text-light); border: 1px solid rgba(255,255,255,0.1); }
+
+  h1, h2, h3 { font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+  p { font-size: 15px; line-height: 1.5; margin-bottom: 20px; opacity: 0.9; }
+
+  .speedometer {
+    position: fixed; top: 20px; right: 20px; background: var(--accent); color: #fff;
+    padding: 10px 16px; border-radius: 12px; font-weight: 800; font-size: 16px;
+    box-shadow: 0 4px 15px rgba(125, 17, 40, 0.4); z-index: 100;
+    transition: transform 0.2s ease; border: 1px solid rgba(255,255,255,0.2);
+  }
+  .speedometer.bump { transform: scale(1.1); background: #9c1532; }
+
+  .progress-bar { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: rgba(255,255,255,0.85); border: 2px solid transparent; border-radius: 16px;
+    padding: 14px 16px; text-align: left; cursor: pointer; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .option-btn:hover, .option-btn:active { background: #fff; border-color: var(--accent); transform: scale(0.98); }
+  .opt-icon { font-size: 24px; }
+  .opt-title { font-weight: 600; font-size: 16px; color: var(--text-dark); margin-bottom: 2px; }
+  .opt-desc { font-size: 13px; color: #555; line-height: 1.3;}
+
+  .detective-comment {
+    position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 560px;
+    background: var(--accent); color: #fff; padding: 16px 20px; border-radius: 16px; font-weight: 500; font-size: 14px;
+    box-shadow: 0 10px 25px rgba(125, 17, 40, 0.5); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 100; border: 1px solid rgba(255,255,255,0.2); line-height: 1.4;
+  }
+  .detective-comment.show { bottom: 20px; }
+
+  .btn-main {
+    background: var(--accent); color: #fff; border: none; border-radius: 12px;
+    padding: 18px 24px; font-size: 16px; font-weight: 700; width: 100%;
+    cursor: pointer; box-shadow: 0 8px 20px rgba(125, 17, 40, 0.4);
+    transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+    text-decoration: none; display: inline-block; text-align: center; margin-top: 10px;
+  }
+  .btn-main:hover, .btn-main:active { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(125, 17, 40, 0.6); }
+
+  .niche-deep-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .niche-header-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;}
+  .badge-rpm { background: #4ade80; color: #064e3b; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 14px; letter-spacing: 0.5px;}
+  
+  .formula-text { font-size: 13px; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;}
+  .why-works-box { background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 8px; font-size: 14px; color: #e2e8f0; line-height: 1.5; margin-bottom: 20px; border-left: 3px solid #fbbf24;}
+  
+  .niche-section { margin-top: 25px; }
+  .niche-section h4 { color: #fff; font-size: 16px; text-transform: none; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;}
+  
+  .prompt-box { 
+    background: #0f172a; border-left: 4px solid var(--accent); padding: 16px; 
+    border-radius: 0 12px 12px 0; font-family: "Courier New", Courier, monospace; 
+    font-size: 13px; color: #a3e635; line-height: 1.5; margin-bottom: 15px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    white-space: pre-wrap;
+  }
+  
+  .idea-list { list-style: none; padding: 0; }
+  .idea-list li { font-size: 15px; font-style: italic; color: #f8fafc; margin-bottom: 10px; padding-left: 24px; position: relative; line-height: 1.4; }
+  .idea-list li::before { content: '🎬'; position: absolute; left: 0; font-size: 14px; top: 1px;}
+  
+  .step-list { list-style: none; padding: 0; }
+  .step-list li { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; padding-left: 24px; position: relative; line-height: 1.4; }
+  .step-list li::before { content: '⚡'; position: absolute; left: 0; font-size: 12px; top: 2px;}
+
+  .secret-box { background: rgba(125, 17, 40, 0.2); border: 1px solid var(--accent); padding: 16px; border-radius: 12px; margin-bottom: 20px; }
+  .secret-title { font-size: 14px; color: #fbbf24; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;}
+  .secret-text { font-size: 14px; color: #fff; line-height: 1.5;}
+
+  .loader-text { font-family: monospace; font-size: 14px; color: var(--accent); margin-top: 20px; min-height: 60px;}
+</style>
+</head>
+<body>
+
+  <div id="bg1" class="bg-image active" style="background-image: url('1.png');"></div>
+  <div id="bg2" class="bg-image" style="background-image: url('2.png');"></div>
+  <div id="bg3" class="bg-image" style="background-image: url('3.png');"></div>
+  <div id="bg4" class="bg-image" style="background-image: url('4.png');"></div>
+
+  <div id="speedometer" class="speedometer" style="display: none;">💰 $0 / мес</div>
+  <div id="detComment" class="detective-comment">👩‍🦰 Cherry: Отличный выбор.</div>
+
+  <div class="app-container">
+    
+    <div id="screen-start" class="screen active">
+      <div class="glass-panel">
+        <h2 style="color: var(--accent); font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Faceless YouTube</h2>
+        <h1 style="font-size: 36px; margin-bottom: 15px;">Взломай алгоритм.</h1>
+        <p style="font-size: 16px;">Ответь на 5 вопросов. Я выдам тебе идеальную нишу и распишу четкий план из коротких шагов: мощные промпты для тем и сценария, плюс инструкцию к запуску.</p>
+        <button class="btn-main" onclick="startQuiz()">👉 Начать расследование</button>
+      </div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+      <div class="glass-panel">
+        <div class="progress-bar"><div id="progress" class="progress-fill"></div></div>
+        <h2 id="q-title" style="font-size: 22px;">Вопрос</h2>
+        <p id="q-desc" style="font-size: 14px; margin-bottom: 20px;">Описание</p>
+        <div id="options-container" class="options-grid"></div>
+      </div>
+    </div>
+
+    <div id="screen-loading" class="screen">
+      <div class="glass-panel glass-panel-dark" style="text-align: center;">
+        <h2 style="font-size: 26px;">Магия алгоритма...</h2>
+        <p style="font-size: 15px;">Скрещиваю твои ответы с базой самых прибыльных ниш YouTube на 2026 год.</p>
+        <div id="loader-text" class="loader-text">Анализирую тренды...</div>
+      </div>
+    </div>
+
+    <div id="screen-result" class="screen">
+      <div class="glass-panel glass-panel-dark">
+        <h2 style="color: var(--accent); font-size: 28px;">Твоё Продюсерское Досье</h2>
+        <p style="font-size: 15px; color: #ccc;">Я проанализировала твои ответы. Ниже — мощный бизнес-план для твоего старта.</p>
+        
+        <div id="results-container"></div>
+
+        <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 25px;">
+          <h2 style="font-size: 22px;">Это был всего 1% от системы.</h2>
+          <p style="font-size: 15px; color: #ccc; margin-bottom: 10px;">Ты получил план всего для одной ниши. Но знать идею — это только начало.</p>
+          <p style="font-size: 15px; color: #ccc; margin-bottom: 10px;">В <b>Полном Премиум-Гайде</b> детально и пошагово расписано, <b>как запустить канал с абсолютного нуля</b>. Всё разжёвано специально для новичков: от правильной регистрации канала до подключения монетизации.</p>
+          <p style="font-size: 15px; color: #ccc; margin-bottom: 10px;">Плюс твой главный арсенал: <b>Золотая База из 100 ниш</b> (с более подробными карточками к каждой), библиотека мощных промптов на все случаи жизни и секреты обхода теневых банов.</p>
+          
+          <a href="https://t.me/cherryamore_auth_bot" class="btn-main">🔗 ЗАБРАТЬ ПОЛНЫЙ ГАЙД →</a>
+          <p style="text-align: center; font-size: 12px; color: #888; margin-top: 15px;">Доступ к интерактивной платформе открывается мгновенно.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  let currentQ = 0;
+  let currentMoney = 0;
+  let userProfile = ""; 
+  let commentTimeout;
+
+  function updateSpeedometer(amount) {
+    currentMoney += amount;
+    const speedo = document.getElementById('speedometer');
+    speedo.innerText = `💰 $${currentMoney.toLocaleString()} / мес`;
+    speedo.classList.add('bump');
+    setTimeout(() => speedo.classList.remove('bump'), 200);
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+  }
+
+  const questions = [
+    {
+      title: "Какие темы тебя реально цепляют?", desc: "Тема А — основа твоей ниши.",
+      options: [
+        { icon: "💰", title: "Деньги и бизнес", desc: "Инвестиции, стартапы, крипта", val: "money", money: 1500, msg: "Идеально. Рекламодатели из сферы финансов платят самый высокий RPM." },
+        { icon: "🧠", title: "Психология и мозг", desc: "Манипуляции, мышление, эмоции", val: "psych", money: 1200, msg: "Психология дает лучшее удержание. Люди обожают копаться в себе." },
+        { icon: "💀", title: "Тёмная сторона истории", desc: "Преступления, загадки, катастрофы", val: "dark", money: 1000, msg: "True Crime — это вечнозеленый тренд и миллионные просмотры." },
+        { icon: "🌍", title: "Природа и выживание", desc: "Животные, экстремальные места", val: "nature", money: 900, msg: "Интересный выбор. Аудитория здесь очень лояльная." },
+        { icon: "🤖", title: "Технологии и ИИ", desc: "Нейросети, будущее, гаджеты", val: "tech", money: 1800, msg: "Самая растущая ниша. Огромный RPM на западном рынке." },
+        { icon: "👽", title: "Мистика и аномалии", desc: "НЛО, теории заговора, тайны", val: "mystic", money: 800, msg: "Аудитория обожает спорить в комментариях. Отличный буст охватов." }
+      ]
+    },
+    {
+      title: "Какой формат контента тебе ближе?", desc: "Тема Б — твой стиль подачи.",
+      options: [
+        { icon: "🔍", title: "Детектив и расследование", desc: "Интрига и глубокий ресерч", val: "inv", money: 800, msg: "Саспенс — это база для идеального AVD (удержания зрителя)." },
+        { icon: "📖", title: "Истории реальных людей", desc: "Биографии, судьбы, кейсы", val: "stories", money: 600, msg: "Зрители легко ассоциируют себя с героем истории." },
+        { icon: "🤯", title: "Шокирующие факты", desc: "Короткие и емкие ролики", val: "facts", money: 500, msg: "Фастфуд-контент. Делается быстро, собирает много кликов." },
+        { icon: "📊", title: "Разборы и аналитика", desc: "Детальный разбор процессов", val: "analytics", money: 1000, msg: "Глубокое погружение. Привлекает платежеспособную аудиторию." },
+        { icon: "🏆", title: "Топы и списки", desc: "Например: «Топ-5 самых...»", val: "tops", money: 700, msg: "Супер-кликабельно. Зритель гарантированно досматривает до конца списка." }
+      ]
+    },
+    {
+      title: "На какую аудиторию хочешь снимать?", desc: "Это определяет язык и RPM.",
+      options: [
+        { icon: "🇺🇸", title: "Англоязычная (US/UK)", desc: "Максимальный доход", val: "t1", money: 2500, msg: "Бинго. Зарубежный Tier-1 платит от $10 до $30 за 1000 просмотров." },
+        { icon: "🇪🇺", title: "Европейская (DE/FR/ES)", desc: "Меньше конкуренции", val: "eu", money: 1800, msg: "Умно! Конкуренции почти нет, а RPM стабильно высокий." },
+        { icon: "🇷🇺", title: "Русскоязычная (СНГ)", desc: "Легкий старт", val: "cis", money: 300, msg: "RPM здесь $1–2, но просмотры собирать проще. Возьмем масштабом." },
+        { icon: "🌐", title: "Доверюсь алгоритму", desc: "Подберем оптимально", val: "any", money: 1500, msg: "Поняла. Подберу для тебя самую оптимальную гео-стратегию." }
+      ]
+    },
+    {
+      title: "Сколько времени готов тратить?", desc: "Определяем производственный цикл.",
+      options: [
+        { icon: "⚡", title: "2–4 часа в неделю", desc: "ИИ-конвейер", val: "fast", money: 500, msg: "Принято. Соберем автоматизированный ИИ-конвейер для средних видео." },
+        { icon: "🎯", title: "5–10 часов в неделю", desc: "Оптимальный баланс", val: "medium", money: 1200, msg: "Оптимально. Фокус на качественные Long-видео по 10-15 минут." },
+        { icon: "🚀", title: "10+ часов (Фуллтайм)", desc: "Сложный продакшен", val: "deep", money: 2000, msg: "Мыслишь как продюсер. Будем делать премиальные документалки." }
+      ]
+    },
+    {
+      title: "Что для тебя важнее на старте?", desc: "Масштаб твоей стратегии.",
+      options: [
+        { icon: "📈", title: "Быстрый рост (Охваты)", desc: "Вирусность и тренды", val: "growth", money: 500, msg: "Фокус на вирусность, широкие темы и смысловые качели в превью." },
+        { icon: "💵", title: "Максимум денег (RPM)", desc: "Узкие денежные ниши", val: "rpm", money: 1500, msg: "Выбираем узкие микро-ниши. Меньше просмотров, но больше долларов." },
+        { icon: "🏖️", title: "Пассив в долгую", desc: "Вечнозеленый контент", val: "passive", money: 1000, msg: "Будем делать вечнозеленый контент, который смотрят годами." }
+      ]
+    }
+  ];
+
+  const massiveIdeaPrompt = `Ты — senior YouTube-стратег и психолог контента с 10+ летним опытом. Ты знаешь не просто что снимать — ты знаешь ПОЧЕМУ люди кликают, ПОЧЕМУ досматривают и ПОЧЕМУ возвращаются.
+
+Ты понимаешь три уровня мотивации зрителя:
+— Поверхностный: «интересная тема»
+— Глубокий: эмоциональный триггер
+— Архетипический: базовые страхи и желания
+
+Придумай 30 идей для видео. Для каждой идеи дай:
+1. Заголовок на английском (до 55 символов)
+2. Глубинный триггер (почему кликнут)
+3. Хук для первых 30 секунд по формуле ВОП
+4. Почему это досмотрят до конца
+5. Потенциальный RPM ($)
+
+В конце выдели ТОП-3 идеи для немедленного запуска и 3 видео для создания «незакрытой петли».`;
+
+  const massiveScriptPrompt = `Ты — сценарист faceless YouTube-каналов с многолетним опытом. За твоими сценариями стоят каналы с 500M+ просмотров.
+
+Твои 3 главных секрета:
+1. НЕЙРОНАУКА УДЕРЖАНИЯ: мозг принимает решение уйти каждые 8–12 секунд. Давай новый микро-стимул каждые 10 секунд (факт, поворот, эмоцию).
+2. АРХИТЕКТУРА НЕЗАКРЫТЫХ ПЕТЕЛЬ: пока закрываешь одну петлю — открываешь следующую. Зритель физически не может уйти.
+3. ЭМОЦИОНАЛЬНЫЕ КАЧЕЛИ: напряжение → облегчение → новое напряжение.
+
+Напиши скрипт на 10 минут. СТРУКТУРА:
+— ХУК (0:00–0:30): Формула ВОП (Шок + Парадокс + Обещание). БЕЗ слова «Привет».
+— ИНТРО (0:30–1:00): Усиление ставок.
+— ТЕЛО: Блоки по 90 секунд. В конце каждого — микро-поворот.
+— ФИНАЛ: Неожиданный финальный факт.
+
+Требования: Разговорный стиль, максимум 12 слов в предложении, активный залог. В конце добавь 5 вариантов заголовка с оценкой CTR и идею для превью.`;
+
+  // ПОЛНАЯ БАЗА НА 18 НИШ (По 3 уникальных ниши в каждой категории)
+  const dbRandomized = {
+    "money": [
+      {
+        name: "Анатомия Финансовых Афер", formula: "Финансы × True Crime", rpm: "$18–28", geo: "US/UK/CA",
+        whyWorks: "Зрители испытывают злорадство и шок, видя как рушатся империи богачей. Это вызывает мощный эмоциональный отклик и держит удержание аудитории (AVD) стабильно выше 50%.",
+        ideas: ["Как один хакер обрушил Уолл-Стрит за 3 секунды", "Самая большая финансовая пирамида, о которой молчат", "Куда на самом деле исчезли $64 миллиарда Мэдоффа"],
+        seoHack: "Используем Смысловые Качели. На превью: крупно дешевое мыло + текст «ОРУЖИЕ ЗА $1». Ключевая фраза должна звучать голосом ИИ строго в первые 15 секунд (Семантическое Зеркало).",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Прогони промпты через Claude 3.5 Sonnet.", "Голос: Озвучь через ElevenLabs.", "Визуал: Сгенерируй макро-кадры в Whisk.", "Монтаж: CapCut. Динамика смены кадра каждые 4-5 секунд."]
+      },
+      {
+        name: "Секретные Бизнес-Империи", formula: "Бизнес × Разоблачение", rpm: "$15–25", geo: "Global Tier-1",
+        whyWorks: "Любопытство к чужим кошелькам. Зритель хочет узнать грязные секреты брендов, которыми он пользуется каждый день.",
+        ideas: ["Тёмная сторона McDonald's: как они зарабатывают на земле", "Мафия авокадо: кто контролирует ваши тосты", "Как Zara заставляет вас покупать то, что вам не нужно"],
+        seoHack: "На превью используй яркие логотипы известных брендов (Apple, Zara, Starbucks), но на очень темном, зловещем фоне.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Запроси у ИИ аналитику бизнес-модели.", "Голос: Строгий корпоративный тон ИИ.", "Визуал: Бесплатные футажи мегаполисов и корпораций.", "Монтаж: Ритмичная, нейтральная фоновая музыка."]
+      },
+      {
+        name: "Крах Миллиардеров", formula: "Деньги × Провал", rpm: "$12–22", geo: "US/Europe",
+        whyWorks: "Учиться на чужих фатальных ошибках. Это дарит зрителю чувство превосходства и успокаивает страх бедности.",
+        ideas: ["Он заработал $2 млрд за год и потерял их за одну ночь", "Худшая инвестиция в истории Кремниевой Долины", "Как крипто-король оказался в тюрьме"],
+        seoHack: "Используй красные стрелки вниз и лица в панике на превью. Красный цвет ассоциируется с опасностью и падением рынка, пробивая баннерную слепоту.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: ИИ генерирует историю от лица 'свидетеля'.", "Голос: Тревожный дикторский голос.", "Визуал: Графики, падающие вниз, роскошные особняки.", "Монтаж: Драматичные эффекты сбоев (glitch)."]
+      }
+    ],
+    "psych": [
+      {
+        name: "Тёмная Психология и Манипуляции", formula: "Психология × Разоблачения", rpm: "$12–20", geo: "US/EU/AU",
+        whyWorks: "Контент давит на паранойю. Зритель начинает подозревать, что им управляют. Страх быть обманутым — сильнейший триггер для клика.",
+        ideas: ["5 скрытых трюков супермаркетов, заставляющих вас тратить", "Анатомия лжи: как ФБР вычисляет мошенников за минуту", "Эффект толпы: почему умные люди делают глупости"],
+        seoHack: "Обязательно ставь галочку 'Not made for kids'. На превью используй холодные цвета на фоне теплых.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Gemini для фактов + Claude для структуры.", "Голос: Вкрадчивый ИИ-голос с долгими паузами.", "Визуал: Стоки Pexels (шахматы, зрачки) + ЧБ фильтр.", "Монтаж: Плавные переходы (Fade) и автосубтитры."]
+      },
+      {
+        name: "Анатомия Лжи и Профайлинг", formula: "Психология × Детектив", rpm: "$10–18", geo: "Tier-1",
+        whyWorks: "Все хотят обладать суперспособностью — читать мысли других. Этот контент воспринимается как секретное оружие.",
+        ideas: ["Как распознать нарцисса за 3 секунды", "Микровыражения: что его лицо говорит на самом деле", "Язык тела на собеседовании, который выдает неуверенность"],
+        seoHack: "Превью с крупным планом глаз и графическими Overlay-элементами (рамки трекинга лица, как в кино про шпионов).",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: ИИ расписывает конкретные жесты и мимику.", "Голос: Уверенный, быстрый тон 'эксперта'.", "Визуал: Лица людей (ИИ-генерация) с эмоциями.", "Монтаж: Звуки затвора камеры при выделении деталей."]
+      },
+      {
+        name: "Поведенческие Аномалии", formula: "Мозг × Наука", rpm: "$9–15", geo: "Global English",
+        whyWorks: "Мы любим находить 'баги' в человеческой прошивке. Это ломает привычную логику зрителя.",
+        ideas: ["Эффект Манделы: почему миллионы помнят то, чего не было", "Сонный паралич: что на самом деле видит ваш мозг", "Парадокс выбора: почему чем больше опций, тем мы несчастнее"],
+        seoHack: "Оптические иллюзии на превью дают неадекватный CTR. Человек кликает просто чтобы разглядеть картинку.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Проси ИИ объяснять науку 'для 5-летнего'.", "Голос: Спокойный, академичный голос.", "Визуал: Абстрактные ИИ-анимации, фракталы.", "Монтаж: Расслабляющий, глубокий Lo-Fi на фоне."]
+      }
+    ],
+    "dark": [
+      {
+        name: "True Crime: Загадки Истории", formula: "История × Криминал", rpm: "$9–15", geo: "Global English",
+        whyWorks: "Люди обожают чувствовать себя детективами. Если оставить финал открытым, зрители напишут тысячи комментариев со своими теориями.",
+        ideas: ["Инцидент на перевале Дятлова: что засекли спутники США", "Нераскрытое дело Зодиака: фатальная ошибка следствия", "Тайны Даркнета: форум, который напугал даже ФБР"],
+        seoHack: "В первые 48 часов следи за CTR. Если он ниже 3% — меняй превью немедленно. Алгоритм тестирует видео именно в это окно.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Жесткий контроль таймингов через нейросеть.", "Голос: Низкий тембр, эффект старой рации.", "Визуал: ИИ-генерации архивных фото.", "Монтаж: Медленный зум на лица, тихие сирены на фоне."]
+      },
+      {
+        name: "Культы и Секретные Общества", formula: "История × Тайна", rpm: "$8–14", geo: "US/UK",
+        whyWorks: "Запретный плод. Тема табу и закрытых дверей всегда вызывает мощнейшее любопытство.",
+        ideas: ["Внутри самого опасного культа 90-х", "Масонские символы в вашем городе, которые вы не замечали", "Запрещенные книги, скрытые Ватиканом"],
+        seoHack: "Используй черно-белые старинные фото на превью, добавляя один яркий, светящийся красный элемент (глаза, символ).",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Нагнетай саспенс короткими фразами.", "Голос: Глубокий шепот (Whisper AI).", "Визуал: Темные залы, ритуальные маски, старые газеты.", "Монтаж: Гулкий, низкочастотный бас на переходах."]
+      },
+      {
+        name: "Выжившие: На грани смерти", formula: "Трагедия × Героизм", rpm: "$7–13", geo: "Global",
+        whyWorks: "Эмпатия и первобытный инстинкт самосохранения. Зритель ставит себя на место героя и думает: 'А я бы выжил?'.",
+        ideas: ["43 дня в открытом океане: как он обманул смерть", "Побег от серийного убийцы: реальная история", "Выжившие в авиакатастрофе в Андах"],
+        seoHack: "Превью в стиле '1 VS Nature'. Маленький человек на фоне гигантской угрозы (огромная волна, бесконечный снег).",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Фокус на эмоции и сенсорные детали (холод, жажда).", "Голос: Эмоциональный, с паузами на вздохи.", "Визуал: Динамичные футажи стихий с Pexels.", "Монтаж: Быстрая смена кадров в моменты паники."]
+      }
+    ],
+    "nature": [
+      {
+        name: "Аномалии Природы", formula: "Биология × Хоррор", rpm: "$8–14", geo: "US/CA/UK",
+        whyWorks: "Скрещивание науки и первобытного страха. Это контент, который стирает языковые барьеры.",
+        ideas: ["Самое токсичное озеро на Земле, куда запрещен вход", "Дерево, которое убивает прикосновением", "Кровавый водопад в Антарктиде"],
+        seoHack: "Главное правило превью — один центральный объект на весь экран. Заголовок должен вызывать диссонанс.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Claude. Обязательно добавь команду 'Используй саспенс'.", "Голос: Глубокий ИИ-голос рассказчика.", "Визуал: Бесплатные футажи штормов.", "Монтаж: Резкие звуковые переходы (whoosh)."]
+      },
+      {
+        name: "Смертоносная Фауна", formula: "Животные × Хоррор", rpm: "$7–12", geo: "Global Tier-1",
+        whyWorks: "Базовый страх перед хищниками. Люди обожают смотреть на монстров, находясь в безопасности перед экраном.",
+        ideas: ["Самое ядовитое насекомое, которое может быть в вашем доме", "Морские монстры Марианской впадины", "Паразиты, управляющие разумом жертвы"],
+        seoHack: "Экстремально крупные планы (Macro) жвал, зубов или глаз существа на превью.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Проси ИИ делать акцент на пугающих фактах анатомии.", "Голос: Энергичный, как в передачах NatGeo.", "Визуал: Детальные макро-видео из бесплатных библиотек.", "Монтаж: Звуки жужжания, щелчков и рычания на фоне."]
+      },
+      {
+        name: "Заброшенные Места", formula: "География × Постапокалипсис", rpm: "$6–11", geo: "Europe/US",
+        whyWorks: "Эстетика лиминальных пространств. Любопытство к тому, что происходит с миром без людей.",
+        ideas: ["Радиоактивный город-призрак в Японии", "Заброшенные мегапроекты миллиардеров", "Остров кукол: самое жуткое место Мексики"],
+        seoHack: "Снижай насыщенность (Desaturation) фото на превью, оставляя только один ярко-желтый или красный акцент.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Медленное повествование, упор на историю места.", "Голос: Меланхоличный, спокойный.", "Визуал: Полеты дронов над руинами.", "Монтаж: Долгое удержание кадров, шум ветра на фоне."]
+      }
+    ],
+    "tech": [
+      {
+        name: "ИИ и Скрытые Технологии", formula: "Технологии × Разоблачения", rpm: "$15–30", geo: "Tier-1 (US/UK)",
+        whyWorks: "Страх потери работы и контроля. Этот страх заставляет досматривать видео до конца, чтобы 'узнать, как защититься'.",
+        ideas: ["Как нейросети прямо сейчас забирают вашу работу", "Темная сторона TikTok: алгоритм меняет ваш мозг", "Они следят: что на самом деле слушает ваш телефон"],
+        seoHack: "Используй искаженные логотипы (OpenAI, Apple) с глитч-эффектами на превью. В названия зашивай трендовые триггеры (Leaked, Banned).",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Сценарий через ИИ, фактчекинг обязателен.", "Голос: Энергичный, современный голос.", "Визуал: Глитч-эффекты, летящий код, сервера.", "Монтаж: Быстрые склейки, киберпанк-звуки."]
+      },
+      {
+        name: "Киберпреступления и Хакеры", formula: "IT × Криминал", rpm: "$14–25", geo: "US/EU",
+        whyWorks: "Современные ограбления. Зритель чувствует уязвимость своих собственных данных и хочет понять, как мыслят хакеры.",
+        ideas: ["Крупнейшее крипто-ограбление в истории", "Как хакеры крадут ваши пароли через Wi-Fi", "Короли Даркнета: кто контролирует цифровой рынок"],
+        seoHack: "Превью в стиле матрицы: зеленый код, силуэт в худи без лица и огромная красная надпись 'HACKED'.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: ИИ объясняет сложные IT-термины простым языком.", "Голос: Искаженный ИИ-голос или эффект 'Анонимуса'.", "Визуал: Экранные записи кода, взломов, бегущие цифры.", "Монтаж: Эффекты цифровых помех (digital distortion)."]
+      },
+      {
+        name: "Футурология и Трансгуманизм", formula: "Наука × Будущее", rpm: "$12–22", geo: "Global Tier-1",
+        whyWorks: "Смесь восторга и экзистенциального ужаса перед будущим.",
+        ideas: ["Пугающая правда о чипах Neuralink", "Как будет выглядеть Земля в 2050 году", "Цифровое бессмертие: сможем ли мы загрузить мозг в ПК"],
+        seoHack: "Лица людей, наполовину превращенные в киборгов, работают безотказно. Контраст человеческого и машинного.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Делай прогнозы на основе реальных патентов компаний.", "Голос: Футуристичный, чистый женский ИИ-голос.", "Визуал: Высокотехнологичные 3D-рендеры из библиотек.", "Монтаж: Плавные, 'стерильные' анимации."]
+      }
+    ],
+    "mystic": [
+      {
+        name: "Аномалии и Теории Заговора", formula: "Мистика × Наука", rpm: "$7–14", geo: "Global",
+        whyWorks: "Аудитория обожает спорить. Видео про аномалии собирают тысячи комментариев с теориями, что дает гигантский буст от алгоритмов YouTube.",
+        ideas: ["Проект 'Синяя Книга': что на самом деле скрыли в 1969", "Самые жуткие сигналы из космоса", "Секретные базы в Антарктиде"],
+        seoHack: "Делай превью гиперконтрастными. Светящиеся объекты (НЛО, глаза) на абсолютно черном фоне дают максимальный CTR.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Фокус на недосказанности и парадоксах.", "Голос: Медленный, загадочный тон.", "Визуал: Космос, темные леса, архивные документы.", "Монтаж: Тревожный эмбиент на протяжении всего видео."]
+      },
+      {
+        name: "Паранормальные Явления", formula: "Мистика × Документалка", rpm: "$6–12", geo: "US/UK/LATAM",
+        whyWorks: "Охота за привидениями. Зритель всегда ищет доказательства 'чего-то большего', щекоча себе нервы перед сном.",
+        ideas: ["Разбор самых пугающих записей с камер наблюдения", "Ранчо Скинуокер: зона аномалий", "Правда о доме Амитивилля"],
+        seoHack: "Превью должно выглядеть как стоп-кадр с камеры видеонаблюдения (CCTV) низкого качества с красным кругом, обводящим пустоту.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Анализируй 'улики' с полной серьезностью.", "Голос: Тихий, напряженный голос.", "Визуал: Добавление VHS и зернистых фильтров на видео.", "Монтаж: Внезапные паузы в аудиодорожке для нагнетания страха."]
+      },
+      {
+        name: "Загадки Космоса", formula: "Астрономия × Неизвестность", rpm: "$8–15", geo: "Global Tier-1",
+        whyWorks: "Экзистенциальный масштаб. Космос одновременно восхищает и пугает своей бесконечностью.",
+        ideas: ["Что находится внутри Черной Дыры", "Теория Темного Леса: почему инопланетяне молчат", "Ужасающие размеры Мультивселенной"],
+        seoHack: "Гиперреалистичные рендеры черных дыр или планет с наложенным штампом 'Top Secret' или 'NASA Classified'.",
+        prompt1: massiveIdeaPrompt, prompt2: massiveScriptPrompt,
+        pipeline: ["Текст: Объясняй сложную физику через пугающие метафоры.", "Голос: Эпичный, глубокий 'киношный' диктор.", "Визуал: Высококачественные 4K футажи космоса.", "Монтаж: Оркестровая, эпичная фоновая музыка (Ханс Циммер стайл)."]
+      }
+    ]
+  };
+
+  function setBg(id) {
+    document.querySelectorAll('.bg-image').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector('.app-container').scrollTop = 0;
+  }
+
+  function showComment(text) {
+    clearTimeout(commentTimeout);
+    const box = document.getElementById('detComment');
+    box.innerHTML = `👩‍🦰 <b>Cherry:</b> ${text}`;
+    box.classList.add('show');
+    commentTimeout = setTimeout(() => box.classList.remove('show'), 5000);
+  }
+
+  function startQuiz() {
+    setBg('bg2');
+    document.getElementById('speedometer').style.display = 'block';
+    showScreen('screen-quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    if (currentQ >= questions.length) { finishQuiz(); return; }
+    
+    const q = questions[currentQ];
+    document.getElementById('progress').style.width = ((currentQ / questions.length) * 100) + "%";
+    document.getElementById('q-title').innerText = q.title;
+    document.getElementById('q-desc').innerText = q.desc;
+    
+    const container = document.getElementById('options-container');
+    container.innerHTML = "";
+    
+    q.options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<div class="opt-icon">${opt.icon}</div><div><div class="opt-title">${opt.title}</div><div class="opt-desc">${opt.desc}</div></div>`;
+      btn.onclick = () => {
+        if(currentQ === 0) userProfile = opt.val; 
+        updateSpeedometer(opt.money);
+        showComment(opt.msg);
+        currentQ++;
+        setTimeout(renderQuestion, 600);
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  function finishQuiz() {
+    setBg('bg3');
+    showScreen('screen-loading');
+    
+    const texts = [
+      "> Анализирую тренды и конкуренцию...", 
+      "> Применяю Формулу уникальной ниши...", 
+      "> Генерирую промпты по формуле ВОП...", 
+      "> Досье готово. Вывожу на экран."
+    ];
+    let i = 0;
+    const loader = document.getElementById('loader-text');
+    
+    const interval = setInterval(() => {
+      loader.innerText = texts[i];
+      i++;
+      if (i >= texts.length) {
+        clearInterval(interval);
+        setTimeout(showResults, 1000);
+      }
+    }, 900);
+  }
+
+  function showResults() {
+    setBg('bg4');
+    document.getElementById('speedometer').style.display = 'none'; 
+    showScreen('screen-result');
+    
+    const container = document.getElementById('results-container');
+    
+    const categoryNiches = dbRandomized[userProfile] || dbRandomized["money"];
+    const niche = categoryNiches[Math.floor(Math.random() * categoryNiches.length)];
+    
+    let ideasHTML = "";
+    niche.ideas.forEach(idea => { ideasHTML += `<li>${idea}</li>`; });
+
+    let pipelineHTML = "";
+    niche.pipeline.forEach(step => { pipelineHTML += `<li>${step}</li>`; });
+
+    container.innerHTML = `
+      <div class="niche-deep-card">
+        <div class="niche-header-wrap">
+          <div>
+            <div class="formula-text">Формула: ${niche.formula}</div>
+            <h3 style="font-size: 26px; color: #fff; margin-bottom: 0;">${niche.name}</h3>
+          </div>
+        </div>
+        
+        <div class="badge-rpm">Потенциал: ${niche.rpm} | ГЕО: ${niche.geo}</div>
+        
+        <div class="why-works-box">
+          <b>🧠 Почему это работает:</b> ${niche.whyWorks}
+        </div>
+
+        <div class="niche-section">
+          <h4>🔥 3 Идеи для первых видео:</h4>
+          <ul class="idea-list">
+            ${ideasHTML}
+          </ul>
+        </div>
+
+        <div class="niche-section">
+          <h4>👁️ Секрет Превью и SEO:</h4>
+          <div class="secret-box">
+            <div class="secret-title">Алгоритмический Хак:</div>
+            <div class="secret-text">${niche.seoHack}</div>
+          </div>
+        </div>
+
+        <div class="niche-section">
+          <h4>🧠 Промпт 1: Генерация новых тем</h4>
+          <div class="prompt-box">${niche.prompt1}</div>
+        </div>
+
+        <div class="niche-section">
+          <h4>✍️ Промпт 2: Идеальный сценарий</h4>
+          <div class="prompt-box">${niche.prompt2}</div>
+        </div>
+
+        <div class="niche-section">
+          <h4>⚙️ Инструкция к запуску:</h4>
+          <ul class="step-list">
+            ${pipelineHTML}
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+</script>
+</body>
+</html>
