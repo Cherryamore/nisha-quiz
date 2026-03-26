@@ -559,19 +559,18 @@ let currentQ = 0;
     const categoryNiches = dbRandomized[userProfile] || dbRandomized["money"];
     const niche = categoryNiches[Math.floor(Math.random() * categoryNiches.length)];
     
-    // 🔥 УМНАЯ ПОДМЕНА ГЕО И ДОХОДА (RPM)
+    // УМНАЯ ПОДМЕНА ГЕО И ДОХОДА
     let displayGeo = niche.geo;
-    let displayRpm = niche.rpm; // Берем доход из базы по умолчанию
+    let displayRpm = niche.rpm; 
 
     if (userGeoCode === 't1') {
       displayGeo = "США / Tier-1 (English)";
-      // Оставляем оригинальный высокий RPM из базы
     } else if (userGeoCode === 'eu') {
       displayGeo = "Европа (DE/FR/ES)";
-      displayRpm = "$4–$10"; // Средний реалистичный RPM для Европы
+      displayRpm = "$4–$10"; 
     } else if (userGeoCode === 'cis') {
       displayGeo = "СНГ (Русский)";
-      displayRpm = "$1–$3"; // Суровая реальность СНГ
+      displayRpm = "$1–$3"; 
     }
 
     let ideasHTML = "";
@@ -580,6 +579,38 @@ let currentQ = 0;
     let pipelineHTML = "";
     niche.pipeline.forEach(step => { pipelineHTML += `<li>${step}</li>`; });
 
+    // 🔥 СОЗДАЕМ ДИНАМИЧЕСКИЕ ПРОМПТЫ СПЕЦИАЛЬНО ПОД НИШУ
+    const dynamicPrompt1 = `Ты — senior YouTube-стратег. Твоя задача — придумать 30 вирусных идей для канала в нише "${niche.name}" (Аудитория: ${displayGeo}).
+
+Ты понимаешь три уровня мотивации зрителя:
+— Поверхностный: «интересная тема»
+— Глубокий: эмоциональный триггер
+— Архетипический: базовые страхи
+
+Для каждой идеи дай:
+1. Заголовок (до 55 символов)
+2. Глубинный триггер (почему кликнут)
+3. Хук для первых 30 секунд (Шок + Парадокс)
+4. Потенциальный RPM
+
+Выдели ТОП-3 идеи для немедленного запуска.`;
+
+    const dynamicPrompt2 = `Ты — сценарист faceless-каналов. Твоя задача — написать скрипт на 10 минут для видео в нише "${niche.name}".
+
+Твои правила:
+1. НЕЙРОНАУКА УДЕРЖАНИЯ: новый стимул каждые 10 секунд.
+2. НЕЗАКРЫТЫЕ ПЕТЛИ: пока закрываешь одну петлю — открываешь следующую.
+3. ЭМОЦИОНАЛЬНЫЕ КАЧЕЛИ: напряжение → облегчение.
+
+СТРУКТУРА:
+— ХУК (0:00–0:30): Формула ВОП. БЕЗ слова «Привет».
+— ИНТРО (0:30–1:00): Усиление ставок.
+— ТЕЛО: Блоки по 90 секунд с микро-поворотами.
+— ФИНАЛ: Неожиданный факт.
+
+В конце добавь 5 вариантов заголовка с оценкой CTR и идею для превью.`;
+
+    // ВЫВОДИМ КАРТОЧКУ
     container.innerHTML = `
       <div class="niche-deep-card">
         <div class="niche-header-wrap">
@@ -603,7 +634,7 @@ let currentQ = 0;
         </div>
 
         <div class="niche-section">
-          <h4>👁️ Секрет Превью и SEO:</h4>
+          <h4>👁️ Секрет Превью:</h4>
           <div class="secret-box">
             <div class="secret-title">Алгоритмический Хак:</div>
             <div class="secret-text">${niche.seoHack}</div>
@@ -611,13 +642,13 @@ let currentQ = 0;
         </div>
 
         <div class="niche-section">
-          <h4>🧠 Промпт 1: Генерация новых тем</h4>
-          <div class="prompt-box">${niche.prompt1}</div>
+          <h4>🧠 Промпт 1: Генерация тем</h4>
+          <div class="prompt-box">${dynamicPrompt1}</div>
         </div>
 
         <div class="niche-section">
           <h4>✍️ Промпт 2: Идеальный сценарий</h4>
-          <div class="prompt-box">${niche.prompt2}</div>
+          <div class="prompt-box">${dynamicPrompt2}</div>
         </div>
 
         <div class="niche-section">
@@ -629,7 +660,6 @@ let currentQ = 0;
       </div>
     `;
   }
-
   function closeAppAndBuy() {
     const tg = window.Telegram.WebApp;
     const botLink = "https://t.me/cherryamore_auth_bot?start=pay";
