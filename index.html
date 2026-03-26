@@ -13,8 +13,8 @@
     --text-dark: #1A1A1A;
     --text-light: #FAF7F5;
     --accent: #7D1128;
-    --glass-bg: rgba(250, 247, 245, 0.92);
-    --glass-dark: rgba(26, 26, 26, 0.95);
+    --glass-bg: rgba(250, 247, 245, 0.75); 
+    --glass-dark: rgba(26, 26, 26, 0.85); 
   }
   
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -23,7 +23,7 @@
 
   .bg-image {
     position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-    background-size: cover; background-position: center;
+    background-size: cover; background-position: center top; 
     z-index: 0; opacity: 0; transition: opacity 1s ease;
     animation: kenBurns 20s infinite alternate linear;
   }
@@ -175,7 +175,7 @@
           <p style="font-size: 15px; color: #ccc; margin-bottom: 10px;">В <b>Полном Премиум-Гайде</b> детально и пошагово расписано, <b>как запустить канал с абсолютного нуля</b>. Всё разжёвано специально для новичков: от правильной регистрации канала до подключения монетизации.</p>
           <p style="font-size: 15px; color: #ccc; margin-bottom: 10px;">Плюс твой главный арсенал: <b>Золотая База из 100 ниш</b> (с более подробными карточками к каждой), библиотека мощных промптов на все случаи жизни и секреты обхода теневых банов.</p>
           
-          <a href="https://t.me/cherryamore_auth_bot" class="btn-main">🔗 ЗАБРАТЬ ПОЛНЫЙ ГАЙД →</a>
+          <button onclick="closeAppAndBuy()" class="btn-main">🔗 ЗАБРАТЬ ПОЛНЫЙ ГАЙД →</button>
           <p style="text-align: center; font-size: 12px; color: #888; margin-top: 15px;">Доступ к интерактивной платформе открывается мгновенно после оплаты.</p>
         </div>
       </div>
@@ -188,6 +188,16 @@
   let currentMoney = 0;
   let userProfile = ""; 
   let commentTimeout;
+
+  function closeAppAndBuy() {
+    // Если открыто внутри Telegram
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.close(); // Красиво закрываем шторку
+    } else {
+      // Если кто-то открыл просто в браузере с компьютера
+      window.location.href = "https://t.me/cherryamore_auth_bot"; 
+    }
+  }
 
   function updateSpeedometer(amount) {
     currentMoney += amount;
