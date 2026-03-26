@@ -43,16 +43,10 @@
   @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
   .glass-panel {
-    /* Полностью убираем размытие и делаем чистый, плотный белый фон */
-    background: #FFFFFF; 
-    backdrop-filter: none; /* Убрали размытие фона */
-    -webkit-backdrop-filter: none;
-    
-    border-radius: 24px; padding: 24px; 
-    border: 1px solid rgba(0,0,0,0.05); /* Тонкая, едва заметная тень вместо рамки */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Мягкая тень для объема */
-    margin-bottom: 20px; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
-    margin-top: 35vh; /* Спускаем плашку вниз, чтобы лицо персонажа было сверху */
+    background: var(--glass-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border-radius: 24px; padding: 24px; border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25); margin-bottom: 20px; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
+    margin-top: 35vh; /* Опускает панель вниз, освобождая верхние 35% экрана для лица */
   }
   .glass-panel-dark { background: var(--glass-dark); color: var(--text-light); border: 1px solid rgba(255,255,255,0.1); }
 
