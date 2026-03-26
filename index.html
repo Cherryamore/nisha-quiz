@@ -190,9 +190,10 @@
   </div>
 
 <script>
-  let currentQ = 0;
+let currentQ = 0;
   let currentMoney = 0;
   let userProfile = ""; 
+  let userGeoCode = ""; // Добавили переменную для сохранения ГЕО
   let commentTimeout;
 
   function updateSpeedometer(amount) {
@@ -286,7 +287,6 @@
 
 Требования: Разговорный стиль, максимум 12 слов в предложении, активный залог. В конце добавь 5 вариантов заголовка с оценкой CTR и идею для превью.`;
 
-  // ПОЛНАЯ БАЗА НА 18 НИШ
   const dbRandomized = {
     "money": [
       {
@@ -488,7 +488,10 @@
       btn.className = 'option-btn';
       btn.innerHTML = `<div class="opt-icon">${opt.icon}</div><div><div class="opt-title">${opt.title}</div><div class="opt-desc">${opt.desc}</div></div>`;
       btn.onclick = () => {
+        // СОХРАНЯЕМ ВЫБОР ПОЛЬЗОВАТЕЛЯ
         if(currentQ === 0) userProfile = opt.val; 
+        if(currentQ === 2) userGeoCode = opt.val; // Запоминаем выбранное ГЕО
+
         updateSpeedometer(opt.money);
         showComment(opt.msg);
         currentQ++;
@@ -531,6 +534,13 @@
     const categoryNiches = dbRandomized[userProfile] || dbRandomized["money"];
     const niche = categoryNiches[Math.floor(Math.random() * categoryNiches.length)];
     
+    // ПОДМЕНЯЕМ ГЕО НА ТО, ЧТО ВЫБРАЛ ПОЛЬЗОВАТЕЛЬ
+    let displayGeo = niche.geo;
+    if (userGeoCode === 't1') displayGeo = "США / Tier-1 (English)";
+    else if (userGeoCode === 'eu') displayGeo = "Европа (DE/FR/ES)";
+    else if (userGeoCode === 'cis') displayGeo = "СНГ (Русский)";
+    // Если выбрал 'any' - оставляем дефолтное ГЕО ниши
+
     let ideasHTML = "";
     niche.ideas.forEach(idea => { ideasHTML += `<li>${idea}</li>`; });
 
@@ -546,7 +556,7 @@
           </div>
         </div>
         
-        <div class="badge-rpm">Потенциал: ${niche.rpm} | ГЕО: ${niche.geo}</div>
+        <div class="badge-rpm">Потенциал: ${niche.rpm} | ГЕО: ${displayGeo}</div>
         
         <div class="why-works-box">
           <b>🧠 Почему это работает:</b> ${niche.whyWorks}
@@ -587,7 +597,6 @@
     `;
   }
 
-  // ФУНКЦИЯ ДЛЯ ЗАКРЫТИЯ И ОПЛАТЫ В БОТЕ
   function closeAppAndBuy() {
     const tg = window.Telegram.WebApp;
     const botLink = "https://t.me/cherryamore_auth_bot?start=pay";
