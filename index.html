@@ -190,12 +190,18 @@
   let commentTimeout;
 
   function closeAppAndBuy() {
-    // Если открыто внутри Telegram
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.close(); // Красиво закрываем шторку
+    const tg = window.Telegram.WebApp;
+    // Ссылка на твоего бота со скрытой командой "pay"
+    const botLink = "https://t.me/cherryamore_auth_bot?start=pay";
+
+    // Проверяем, реально ли мы внутри Телеграма (а не просто в браузере на ПК)
+    if (tg.platform && tg.platform !== "unknown") {
+      // Заставляем Телеграм открыть бота и передать ему команду
+      tg.openTelegramLink(botLink);
+      tg.close(); // Закрываем шторку квиза
     } else {
-      // Если кто-то открыл просто в браузере с компьютера
-      window.location.href = "https://t.me/cherryamore_auth_bot"; 
+      // Если это ПК (обычный браузер) — просто перекидываем по ссылке
+      window.location.href = botLink;
     }
   }
 
