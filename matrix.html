@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Матрица | Faceless YouTube</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { cherry: '#E11D48', darkbg: '#050505' },
+                    fontFamily: { syne: ['Syne', 'sans-serif'], inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --cherry-glow: rgba(225, 29, 72, 0.4); }
+        body { background-color: #050505; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: radial-gradient(circle at 15% 50%, rgba(225, 29, 72, 0.12), transparent 40%), radial-gradient(circle at 85% 10%, rgba(139, 92, 246, 0.1), transparent 40%); }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+
+        .bento-card { background: linear-gradient(145deg, rgba(30, 30, 30, 0.8) 0%, rgba(15, 15, 15, 0.8) 100%); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border-radius: 24px; position: relative; overflow: hidden; }
+        .bento-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%; background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%); pointer-events: none; }
+
+        .option-btn { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .option-btn:active { transform: scale(0.97); border-color: rgba(225, 29, 72, 0.6); background: rgba(225, 29, 72, 0.05); box-shadow: 0 0 20px var(--cherry-glow); }
+
+        .step-hidden { display: none; opacity: 0; transform: translateY(10px); }
+        .step-active { display: block; animation: fadeInUp 0.4s ease forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        .glow-text { text-shadow: 0 0 20px rgba(225, 29, 72, 0.5); }
+    </style>
+</head>
+<body class="font-inter antialiased pb-24">
+
+    <div class="ambient-bg"></div>
+    <div class="grid-bg"></div>
+
+    <header class="max-w-2xl mx-auto px-6 pt-16 pb-10 text-center relative">
+        <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-[10px] font-bold tracking-widest text-cherry uppercase bg-cherry/10 rounded-full border border-cherry/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-cherry animate-pulse"></span>
+            Снимаем розовые очки
+        </div>
+        <h1 class="text-4xl md:text-5xl font-syne font-black text-white mb-6 tracking-tighter leading-tight glow-text">
+            ПОЧЕМУ ТЫ СТАНЕШЬ <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cherry to-purple-500">ПУШЕЧНЫМ МЯСОМ</span>
+        </h1>
+        <p class="text-neutral-400 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
+            И как не пополнить кладбище мертвых Faceless-каналов
+        </p>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-5">
+        <div class="text-[15px] text-neutral-300 leading-relaxed mb-12 space-y-5">
+            <p>Снимаем розовые очки. Инфоцыгане продали тебе красивую сказку: <em>«Напиши промпт в ChatGPT, закинь текст в нейросеть для озвучки, склей со стоковыми видео — и иди выбирать цвет Ламборгини»</em>.</p>
+            <p>Правда в том, что прямо сейчас в Faceless-нишу ломятся сотни тысяч новичков с точно таким же планом. 99% из них генерируют абсолютно идентичный, бездушный пластиковый шлак. Они собирают по 15 просмотров, выгорают через месяц и идут в чаты ныть, что «Ютуб умер» и «алгоритмы режут охваты».</p>
+            <p><span class="text-white font-bold">Faceless YouTube не умер. Зритель эволюционировал.</span> Ютубу больше не нужен контент ради контента. Ему нужно удержание. Если ты не понимаешь правил игры, алгоритм просто пережует тебя и выплюнет.</p>
+            <p>Вот 4 фатальные ловушки, в которых ломается психика новичков. Узнаешь себя — срочно меняй стратегию.</p>
+
+            <div class="p-4 mt-6 border-l-2 border-cherry bg-cherry/5 rounded-r-xl">
+                <span class="text-white font-bold text-sm block mb-1">⚠️ Внимательно читай каждую ловушку</span>
+                <p class="text-neutral-400 text-[13px] m-0">В самом конце тебя ждет жесткий краш-тест на выживаемость. Проверим, кто ты: будущая акула Ютуба или пушечное мясо.</p>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-syne font-bold text-white mb-4 flex items-center gap-3">
+                <span>🩸</span> Ловушка 1: Иллюзия быстрых дофаминов
+            </h2>
+            <p class="text-neutral-300 text-[15px] mb-5 leading-relaxed">Ты привык к TikTok и Reels. Залил видео — через час увидел тысячу просмотров. На YouTube ты заливаешь первые ролики и видишь... тишину. Три просмотра, и те от твоей мамы. Ты решаешь, что попал в «теневой бан» (которого не существует) и бросаешь канал.</p>
+            
+            <div class="mb-5 pl-4 border-l-2 border-neutral-700">
+                <span class="text-white font-bold text-sm block mb-1">Почему так:</span>
+                <p class="text-neutral-400 text-sm leading-relaxed">Алгоритм YouTube — это консервативный инвестор. Он помещает новые каналы в «песочницу». Зачем ему рисковать своей аудиторией и рекомендовать ноунейма, если он не знает, можно ли тебе доверять?</p>
+            </div>
+
+            <div class="bg-black/40 p-5 rounded-xl border border-cherry/20">
+                <h4 class="text-cherry font-black text-xs mb-2 uppercase tracking-widest flex items-center gap-2">
+                    <span>💉</span> Антидот «Слепой снайпер»
+                </h4>
+                <p class="text-neutral-200 text-[13px] font-medium leading-relaxed">Первые 2 месяца твоя метрика успеха — это не просмотры и не деньги. Твоя единственная цель — выстроить бесперебойный конвейер производства. Ты работаешь на алгоритмическое доверие. Фокус только на качестве и регулярности, а не на цифрах в дашборде.</p>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-syne font-bold text-white mb-4 flex items-center gap-3">
+                <span>🤖</span> Ловушка 2: Синдром Дешевого Клона
+            </h2>
+            <p class="text-neutral-300 text-[15px] mb-5 leading-relaxed">Ты заходишь в нишу, видишь канал-миллионник и решаешь: «Сделаю так же!». Берешь те же темы, тот же монотонный голос робота, те же стоковые видео с бегущим по полю мужиком.</p>
+            
+            <div class="mb-5 pl-4 border-l-2 border-neutral-700">
+                <span class="text-white font-bold text-sm block mb-1">Почему так:</span>
+                <p class="text-neutral-400 text-sm leading-relaxed">Зачем зрителю (и алгоритму) смотреть ухудшенную копию того, что уже существует? Нейросети научились делать текст складно, но они не умеют делать его <em>интересно</em>.</p>
+            </div>
+
+            <div class="bg-black/40 p-5 rounded-xl border border-cherry/20">
+                <h4 class="text-cherry font-black text-xs mb-2 uppercase tracking-widest flex items-center gap-2">
+                    <span>💉</span> Антидот «Куратор смыслов»
+                </h4>
+                <p class="text-neutral-200 text-[13px] font-medium leading-relaxed">ИИ — это твой подмастерье, а не режиссер. Хук (первые секунды) и эмоциональные качели ты прописываешь руками. Добавляй в сценарий паузы, сарказм, конфликты. Стань аномалией в своей нише. Делаешь канал про финансы? Используй сторителлинг из тру-крайма.</p>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-syne font-bold text-white mb-4 flex items-center gap-3">
+                <span>📊</span> Ловушка 3: Смерть на 15-й секунде
+            </h2>
+            <p class="text-neutral-300 text-[15px] mb-5 leading-relaxed">Ты тратишь 5 часов на монтаж и красивые переходы в середине видео, но забиваешь на начало. У тебя кликабельная обложка, зритель заходит... и слышит долгую, унылую заставку: <em>«Привет всем, добро пожаловать на канал, сегодня мы поговорим о...»</em>. Свайп. Зритель ушел.</p>
+            
+            <div class="mb-5 pl-4 border-l-2 border-neutral-700">
+                <span class="text-white font-bold text-sm block mb-1">Почему так:</span>
+                <p class="text-neutral-400 text-sm leading-relaxed">Зритель решает, остаться или уйти, за первые 3-5 секунд. Если удержание (Retention) падает до 10% на первой минуте, YouTube навсегда хоронит твой ролик, даже если у него гениальная обложка.</p>
+            </div>
+
+            <div class="bg-black/40 p-5 rounded-xl border border-cherry/20">
+                <h4 class="text-cherry font-black text-xs mb-2 uppercase tracking-widest flex items-center gap-2">
+                    <span>💉</span> Антидот «Правило 50/50»
+                </h4>
+                <p class="text-neutral-200 text-[13px] font-medium leading-relaxed">Половину всего времени работы над видео ты тратишь ТОЛЬКО на связку «Идея + Превью + Хук (первые 30 секунд)». Если начало не цепляет мертвой хваткой — остальной монтаж не имеет смысла, его просто никто не увидит.</p>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 md:p-8 mb-14">
+            <h2 class="text-2xl font-syne font-bold text-white mb-4 flex items-center gap-3">
+                <span>⛓️</span> Ловушка 4: Выгорание микроменеджера
+            </h2>
+            <p class="text-neutral-300 text-[15px] mb-5 leading-relaxed">Ты пытаешься быть человеком-оркестром. Сам пишешь сценарий, сам ищешь картинки, сам сводишь звук, сам настраиваешь SEO. К пятому ролику тебя тошнит от YouTube.</p>
+            
+            <div class="mb-5 pl-4 border-l-2 border-neutral-700">
+                <span class="text-white font-bold text-sm block mb-1">Почему так:</span>
+                <p class="text-neutral-400 text-sm leading-relaxed">Ты работаешь как грузчик, а не как бизнесмен. Рутина сжирает креатив.</p>
+            </div>
+
+            <div class="bg-black/40 p-5 rounded-xl border border-cherry/20">
+                <h4 class="text-cherry font-black text-xs mb-2 uppercase tracking-widest flex items-center gap-2">
+                    <span>💉</span> Антидот «Мышление Продюсера»
+                </h4>
+                <p class="text-neutral-200 text-[13px] font-medium leading-relaxed">Строй систему. Делегируй нейросетям всю механическую, рутинную работу (озвучка, генерация фонов, подбор тегов). Свою энергию трать только на две вещи: поиск прорывных идей и аналитику графиков удержания.</p>
+            </div>
+        </div>
+
+        <div id="interactive-zone" class="bento-card p-6 md:p-10 relative">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-syne font-black text-white mb-2">А ТЫ ВЫЖИВЕШЬ?</h3>
+                <p class="text-neutral-400 text-sm">6 вопросов, которые покажут, станешь ли ты новой акулой или кормом для алгоритмов. Отвечай честно. Себя не обманешь.</p>
+            </div>
+
+            <div id="progress-bar" class="w-full bg-white/5 h-1.5 rounded-full mb-8 overflow-hidden">
+                <div id="progress-fill" class="bg-cherry h-full w-[16%] transition-all duration-500 rounded-full shadow-[0_0_10px_rgba(225,29,72,0.8)]"></div>
+            </div>
+
+            <div id="quiz-container" class="relative min-h-[400px]">
+                
+                <div id="q1" class="quiz-step step-active">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 1 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">Твоя главная цель на первый месяц работы канала?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(1, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Заработать первую тысячу долларов и включить монетизацию.</button>
+                        <button onclick="answer(1, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Понять, работает ли ниша: если за месяц видео не залетят, брошу.</button>
+                        <button onclick="answer(1, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Настроить ИИ-конвейер, чтобы делать качественное видео за 2 часа, не выгорая.</button>
+                    </div>
+                </div>
+
+                <div id="q2" class="quiz-step step-hidden">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 2 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">Как ты напишешь сценарий для нового ролика?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(2, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Напишу промпт в ChatGPT: «Сделай сценарий». Скопирую и вставлю в озвучку.</button>
+                        <button onclick="answer(2, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Найду топовый западный ролик, переведу, немного поменяю слова и залью.</button>
+                        <button onclick="answer(2, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Сделаю ресерч. Каркас соберет ИИ, но хук, парадоксы и интригу впишу руками.</button>
+                    </div>
+                </div>
+
+                <div id="q3" class="quiz-step step-hidden">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 3 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">На что ты потратишь больше всего времени при создании видео?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(3, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">На монтаж, эффекты и подбор классной музыки.</button>
+                        <button onclick="answer(3, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">На поиск идеальных стоковых футажей в высоком качестве.</button>
+                        <button onclick="answer(3, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">На разработку кликабельного превью и первых 30 секунд сценария (Хука).</button>
+                    </div>
+                </div>
+
+                <div id="q4" class="quiz-step step-hidden">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 4 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">Твой ролик получил отличный CTR (кликабельность 12%), но просмотры остановились на 200. Кто виноват?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(4, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Алгоритмы Ютуба. Они специально топят новые каналы.</button>
+                        <button onclick="answer(4, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Я попал в теневой бан или выложил видео не в то время.</button>
+                        <button onclick="answer(4, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">У меня кликбейтная обложка, но отвратительный хук. Люди зашли и сразу закрыли видео.</button>
+                    </div>
+                </div>
+
+                <div id="q5" class="quiz-step step-hidden">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 5 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">Как ты выберешь нишу для старта?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(5, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Посмотрю, где самый высокий RPM (доход), например, финансы.</button>
+                        <button onclick="answer(5, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Возьму тему, в которой сам круто разбираюсь, даже если ее никто не ищет.</button>
+                        <button onclick="answer(5, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Найду пересечение: спрос аудитории + слабые конкуренты + мне легко производить с ИИ.</button>
+                    </div>
+                </div>
+
+                <div id="q6" class="quiz-step step-hidden">
+                    <span class="text-cherry text-[10px] font-black uppercase tracking-widest mb-3 block">Вопрос 6 / 6</span>
+                    <h4 class="text-lg text-white font-bold mb-5 leading-snug">Ты неделю делал ролик, вложил всю душу, а он набрал 1 из 10 в студии (полный провал). Твои действия?</h4>
+                    <div class="space-y-3">
+                        <button onclick="answer(6, 5)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Удалю ролик от позора и перезалью завтра — вдруг повезет.</button>
+                        <button onclick="answer(6, 0)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Иду в телеграм-чаты жаловаться, что Ютуб продвигает только миллионников.</button>
+                        <button onclick="answer(6, 10)" class="option-btn w-full text-left p-4 rounded-2xl text-sm font-medium text-neutral-200">Спокойно открою график удержания, найду секунду, где отвалились зрители, сделаю вывод.</button>
+                    </div>
+                </div>
+
+                <div id="result" class="quiz-step step-hidden text-center py-4">
+                    <div id="result-emoji" class="text-6xl mb-4 drop-shadow-md"></div>
+                    <h3 id="result-title" class="text-2xl font-syne font-black mb-3 text-white"></h3>
+                    <p id="result-text" class="text-xs text-neutral-300 mb-8 leading-relaxed font-medium"></p>
+                    
+                    <div class="flex flex-col gap-3">
+                        <button onclick="goToBot()" class="w-full bg-cherry text-white py-4 rounded-xl font-bold text-xs tracking-widest uppercase shadow-[0_0_15px_rgba(225,29,72,0.4)]">
+                            Вступить в закрытый клуб 🔒
+                        </button>
+                        <button onclick="window.location.href='hub.html'" class="text-[10px] text-neutral-500 font-bold uppercase tracking-widest mt-2 p-2">
+                            Назад в меню
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.setHeaderColor('#050505');
+        window.Telegram.WebApp.setBackgroundColor('#050505');
+
+        let totalScore = 0;
+        const totalQuestions = 6;
+
+        function answer(currentStep, points) {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
+
+            totalScore += points;
+            const progress = ((currentStep) / totalQuestions) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            
+            const currentEl = document.getElementById(`q${currentStep}`);
+            currentEl.classList.remove('step-active');
+            
+            setTimeout(() => {
+                currentEl.classList.add('step-hidden');
+                
+                if (currentStep < totalQuestions) {
+                    const nextEl = document.getElementById(`q${currentStep + 1}`);
+                    nextEl.classList.remove('step-hidden');
+                    setTimeout(() => nextEl.classList.add('step-active'), 50);
+                } else {
+                    showResult();
+                }
+            }, 200);
+        }
+
+        function showResult() {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+
+            document.getElementById('progress-bar').style.display = 'none';
+            const resultEl = document.getElementById('result');
+            resultEl.classList.remove('step-hidden');
+            setTimeout(() => resultEl.classList.add('step-active'), 50);
+            
+            const emojiEl = document.getElementById('result-emoji');
+            const titleEl = document.getElementById('result-title');
+            const textEl = document.getElementById('result-text');
+
+            if (totalScore >= 50) {
+                emojiEl.textContent = '🐺';
+                titleEl.innerHTML = 'ТЫ — АЛЬФА <span class="text-cherry block text-sm mt-1">(Выживаемость: 99%)</span>';
+                textEl.innerHTML = 'Ты мыслишь как хладнокровный продюсер. У тебя нет иллюзий про легкие деньги, и ты понимаешь, что Ютуб — это система и удержание. Твой канал — это не вопрос "получится ли", это вопрос времени.';
+            } else if (totalScore >= 30) {
+                emojiEl.textContent = '🛠️';
+                titleEl.innerHTML = 'ВЫЖИВШИЙ <span class="text-[#D97706] block text-sm mt-1">(Выживаемость: 50%)</span>';
+                textEl.innerHTML = 'База есть, но ты все еще ищешь "волшебную кнопку". В долгосрок тебя сожрет выгорание. Тебе нужна твердая стратегия и фокус на аналитике. В Гайде я дам тебе точную систему.';
+            } else if (totalScore >= 10) {
+                emojiEl.textContent = '🤡';
+                titleEl.innerHTML = 'ТУРИСТ <span class="text-[#DC2626] block text-sm mt-1">(Выживаемость: 10%)</span>';
+                textEl.innerHTML = 'Ты пришел за быстрыми дофаминами. Алгоритмы раскатают тебя за пару недель. Тебе срочно нужна перепрошивка мышления, иначе ты просто потратишь время впустую.';
+            } else {
+                emojiEl.textContent = '💀';
+                titleEl.innerHTML = 'ПУШЕЧНОЕ МЯСО <span class="text-[#991B1B] block text-sm mt-1">(Выживаемость: 0%)</span>';
+                textEl.innerHTML = 'Абсолютный ноль. Твоя стратегия — слепо копировать шлак и винить во всем теневой бан. Закрывай ИИ. Либо сноси всё подчистую и начинай делать правильно с первого шага.';
+            }
+        }
+
+        function goToBot() {
+            const tg = window.Telegram.WebApp;
+            const botLink = "https://t.me/cherryamore_auth_bot?start=pay";
+            if (tg.platform && tg.platform !== "unknown") {
+                tg.openTelegramLink(botLink);
+                tg.close();
+            } else { window.location.href = botLink; }
+        }
+    </script>
+</body>
+</html>
