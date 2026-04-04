@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>База Промптов | Faceless YouTube</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { cherry: '#E11D48', darkbg: '#050505' },
+                    fontFamily: { syne: ['Syne', 'sans-serif'], inter: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --cherry-glow: rgba(225, 29, 72, 0.4); }
+        body { background-color: #050505; color: #ffffff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: radial-gradient(circle at 15% 50%, rgba(225, 29, 72, 0.12), transparent 40%), radial-gradient(circle at 85% 10%, rgba(139, 92, 246, 0.1), transparent 40%); }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+
+        .bento-card { background: linear-gradient(145deg, rgba(30, 30, 30, 0.8) 0%, rgba(15, 15, 15, 0.8) 100%); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border-radius: 24px; position: relative; overflow: hidden; }
+        
+        /* Accordion Animations */
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity: 0; }
+        .accordion-content.expanded { max-height: 8000px; opacity: 1; }
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.rotated { transform: rotate(180deg); }
+
+        /* Prompt Box Styling */
+        .prompt-box { background: #0A0A0A; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; position: relative; margin-top: 12px; margin-bottom: 24px; }
+        .prompt-text { font-family: 'Inter', monospace; font-size: 11px; line-height: 1.6; color: #A3A3A3; padding: 20px; white-space: pre-wrap; word-wrap: break-word; }
+        
+        .copy-btn { position: absolute; top: 12px; right: 12px; background: rgba(225, 29, 72, 0.15); border: 1px solid rgba(225, 29, 72, 0.3); color: #E11D48; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 6px 12px; border-radius: 8px; transition: all 0.2s; z-index: 10; }
+        .copy-btn:active { transform: scale(0.95); }
+        .copy-btn.success { background: #10B981; border-color: #10B981; color: white; }
+
+        .glow-text { text-shadow: 0 0 20px rgba(225, 29, 72, 0.5); }
+    </style>
+</head>
+<body class="font-inter antialiased pb-20">
+
+    <div class="ambient-bg"></div>
+    <div class="grid-bg"></div>
+
+    <header class="max-w-2xl mx-auto px-6 pt-16 pb-8 text-center relative">
+        <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-[10px] font-bold tracking-widest text-cherry uppercase bg-cherry/10 rounded-full border border-cherry/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-cherry animate-pulse"></span>
+            Обновляется еженедельно
+        </div>
+        <h1 class="text-4xl md:text-5xl font-syne font-black text-white mb-4 tracking-tighter leading-tight glow-text">
+            СЕКРЕТНЫЙ <span class="text-transparent bg-clip-text bg-gradient-to-r from-cherry to-purple-500">АРХИВ</span>
+        </h1>
+        <p class="text-neutral-400 text-sm md:text-base font-medium max-w-xl mx-auto leading-relaxed">
+            Готовые ИИ-связки, промпты и разборы прибыльных ниш. Копируй и запускай.
+        </p>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4">
+        
+        <div class="bento-card mb-6">
+            <button onclick="toggleAccordion('niche-1', this)" class="w-full p-6 flex justify-between items-center text-left focus:outline-none group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-active:scale-95 transition-transform">
+                        📉
+                    </div>
+                    <div>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-cherry mb-1 block">Ниша 1</span>
+                        <h2 class="font-syne text-xl font-bold text-white">Doomsday Finance</h2>
+                    </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center chevron">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+            </button>
+
+            <div id="niche-1" class="accordion-content px-6 pb-2">
+                
+                <div class="mb-6 pt-2 border-t border-white/5">
+                    <p class="text-sm text-neutral-300 leading-relaxed">Ниша «Doomsday Finance» и сохранения капитала. Премиальный сегмент монетизации, взрослая платежеспособная аудитория. Мы используем ИИ, чтобы делать вскрытия мертвых экономик прошлого и предупреждать о будущем.</p>
+                    
+                    <a href="https://t.me/cherry_amore_diary/156" target="_blank" class="inline-flex items-center gap-2 mt-4 px-4 py-2.5 bg-white/5 border border-white/10 text-white text-[12px] font-bold rounded-xl hover:bg-white/10 transition-colors" style="text-decoration: none;">
+                        👀 Читать полный разбор в канале
+                    </a>
+                </div>
+
+                <div class="mb-2 mt-4">
+                    <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>1️⃣</span> Промпт для генерации идей</h3>
+                    <p class="text-[12px] text-neutral-400 mb-3 leading-relaxed">Вставь этот промпт в Gemini/Claude.</p>
+                    <div class="prompt-box">
+                        <button onclick="copyPrompt('prompt-text-0', this)" class="copy-btn">Копировать</button>
+                        <div id="prompt-text-0" class="prompt-text">Role & Context:
+Act as an elite YouTube Content Strategist and Financial Historian. You specialize in the "Doomsday Finance" and wealth preservation niche. Your goal is to brainstorm highly viral, data-driven video concepts that perform "economic autopsies" on past financial collapses to warn viewers about current economic threats.
+Task:
+Generate 5 unique, highly engaging video concepts for a faceless YouTube channel. Do not use generic examples. Dig deep into history to find fascinating, specific financial crises (e.g., The Roman coin debasement, Lebanon's 2019 banking crisis, Zimbabwe's hyperinflation, the 1997 Asian financial crisis, etc.).
+For each of the 5 concepts, strictly provide the following output structure:
+Title Idea: [Provide a highly clickable, curiosity-inducing YouTube title. Format example: "The [Asset] Mistake That Destroyed Wealth in [Year] (And What to Buy Now)"]
+Input Variables for Script Generation:
+
+Video Topic: [State the core economic crisis, e.g., Hyperinflation, Real Estate Crash, Supply Chain Collapse, Sovereign Default]
+Historical Example: [Name the specific historical event with the exact timeframe, e.g., Weimar Republic 1923, Argentina 2001, Japan's Lost Decade 1990s]
+Myth to Bust: [State a popular financial misconception that the masses currently believe, e.g., "Cash is safe in the bank," "Real estate prices never fall," "Government bonds are risk-free"]
+Modern Threat (2026 Context): [State a current, looming economic threat that perfectly mirrors the historical example, e.g., $38 Trillion US Debt, Commercial Real Estate collapse, De-dollarization, Global inflation]</div>
+                    </div>
+                </div>
+
+                <div class="mb-2 mt-6">
+                    <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>2️⃣</span> Промпт для генерации сценария</h3>
+                    <p class="text-[12px] text-neutral-400 mb-3 leading-relaxed">Вставь этот промпт в Gemini/Claude.</p>
+                    <div class="prompt-box">
+                        <button onclick="copyPrompt('prompt-text-00', this)" class="copy-btn">Копировать</button>
+                        <div id="prompt-text-00" class="prompt-text">Role & Context:
+Act as a documentary thriller scriptwriter and expert in "financial forensics." Your task is to write a YouTube script for a channel in the "Doomsday Finance" and wealth preservation niche.
+Tone of Voice:
+Cold, authoritative, cynical, and grounded strictly in hard numbers and historical facts. You do not give financial advice; you perform "autopsies of dead economies." Use short, punchy sentences.
+STRICTLY FORBIDDEN: Do not use typical AI phrases ("In today's fast-paced world," "Let's dive in," "In conclusion"). No platitudes. Only brutal math and historical pattern recognition.
+Input Variables for this Video:
+
+Video Topic: [Insert Topic]
+Historical Example: [Insert Historical Example]
+Myth to Bust: [Insert Myth]
+Modern Threat: [Insert Modern Threat]
+Script Structure (Follow this flawlessly):
+ACT 1: In Media Res (The Immersion) - 150 words
+Start with the words: "Picture this: [Exact month and year of the historical event]." Transport the viewer into the shoes of an ordinary person living through that crisis (Use second-person perspective: "You are a project manager... / You are 39 years old... / You are standing in line..."). Give ultra-specific details: exact salaries, exact prices of goods down to the cent, daily struggles. Make the viewer feel the terror of loss. End the act with an open loop: "By the end of this video, you will know exactly..."
+ACT 2: Slaughtering the Sacred Cow (The Pattern) - 250 words
+State the popular misconception the masses believe ([Myth to Bust]). Then, use historical data to ruthlessly destroy it. Show how this illusion led to the ruin of those who believed it. Use the exact phrase: "The pattern is mathematical, predictable."
+ACT 3: Macro vs. Micro (Mechanics of Collapse) - 400 words
+Explain exactly how the system failed. Show the contrast: how elites/bankers ignored warnings and saved themselves while ordinary people lost everything. Use precise percentages, interest rates, trillions lost, and dates. Outline the 5 stages of collapse for this specific situation.
+ACT 4: The Survivor's Playbook (The Instruction) - 500 words
+Provide a clear, numbered list of 4-5 non-obvious strategies or assets that allowed a minority to survive and thrive during this specific crisis. Provide historical proof for each point ("Farmers during the Depression did X...", "A nurse in Beirut did Y..."). Immediately after, briefly list what went to zero.
+ACT 5: The Alarm Bell (Bridge to the Present) - 200 words
+Map the historical pattern onto the present day. Provide 3-4 terrifying statistical facts about the current global or US economy based on the [Modern Threat]. Prove that the exact same symptoms are showing right now. Ask a rhetorical question: "Ask yourself: what are you not being told right now?"
+Outro:
+Ask for a subscription in a specific way (e.g., "I perform autopsies on dead empires so you see the patterns. Hit subscribe."). Ask viewers to drop a specific emoji in the comments (like 🚁, 🏚️, or 📉) if they are positioning themselves for what's coming. End with a punchy closing line: "Now go diversify before you're forced to."</div>
+                    </div>
+                </div>
+
+                <div class="mb-2 mt-6">
+                    <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>3️⃣</span> Интерактивный Мега-Промпт</h3>
+                    <p class="text-[12px] text-neutral-400 mb-3 leading-relaxed">Вставь в Gemini/Claude.</p>
+                    
+                    <div class="prompt-box">
+                        <button onclick="copyPrompt('prompt-text-1', this)" class="copy-btn">Копировать</button>
+                        <div id="prompt-text-1" class="prompt-text">Role & Master Instruction:
+You are now an automated "Doomsday Finance" YouTube Content Machine. You contain two modules: an Ideation Module and a Scriptwriting Module.
+YOUR WORKFLOW:STEP 1: Right now, you will ONLY execute the Ideation Module. You will generate 5 unique video concepts. Then you will STOP and ask me: "Which concept number should I turn into a script?"STEP 2: Once I reply with a number (e.g., "1"), you will automatically extract the variables from that concept and execute the Scriptwriting Module.
+MODULE 1: IDEATION (Execute this now)
+Generate 5 highly viral, data-driven video concepts. Dig deep into history to find fascinating, specific financial crises. For each concept, output:
+
+Concept #[Number]
+Title Idea: [Highly clickable YouTube title]
+Video Topic: [Core economic crisis]
+Historical Example: [Specific event with timeframe]
+Myth to Bust: [Popular financial misconception]
+Modern Threat: [Current 2026 economic threat]
+MODULE 2: SCRIPTWRITING (Do NOT execute this until I pick a concept number)
+When I choose a concept, adopt a cold, authoritative, cynical tone. Perform an "autopsy of a dead economy." No AI platitudes ("In today's fast-paced world", "Let's dive in"). Use short, punchy sentences and brutal math. Apply the variables from the chosen concept into this exact structure:
+ACT 1: In Media Res (150 words): Start with: "Picture this: [Exact month and year of the historical event]." Put the viewer in the shoes of an ordinary person using the second-person perspective ("You are..."). Give ultra-specific details (salaries, exact prices). End with: "By the end of this video, you will know exactly..."
+ACT 2: Slaughtering the Sacred Cow (250 words): State the [Myth to Bust]. Use historical data to ruthlessly destroy it. Use the exact phrase: "The pattern is mathematical, predictable."
+ACT 3: Macro vs. Micro (400 words): Explain how the system failed. Contrast elites saving themselves vs. ordinary people losing everything. Use precise percentages, trillions lost, and dates. Outline the 5 stages of collapse for this specific situation.
+ACT 4: The Survivor's Playbook (500 words): Provide a numbered list of 4-5 non-obvious strategies/assets that helped a minority survive. Provide historical proof for each point. Immediately after, briefly list what went to zero.
+ACT 5: The Alarm Bell (200 words): Map the historical pattern onto the [Modern Threat]. Provide 3-4 terrifying statistical facts about the current economy. Ask: "Ask yourself: what are you not being told right now?"
+Outro: End with: "I perform autopsies on dead empires so you see the patterns. Hit subscribe." Ask viewers to drop a specific emoji in the comments. Final sentence: "Now go diversify before youre forced to."
+BEGIN STEP 1 NOW.</div>
+                    </div>
+
+                    <div class="p-4 mt-2 border-l-2 border-cherry bg-cherry/5 rounded-r-xl">
+                        <span class="text-white font-bold text-[11px] block mb-1 uppercase tracking-widest">⚙️ Как это выглядит на практике (инструкция):</span>
+                        <p class="text-neutral-300 text-[12px] m-0 leading-relaxed">Вы вставляете этот Мега-Промпт в новый чат.<br>Нейросеть выдает 5 концепций (Концепт #1, Концепт #2 и т.д.) и в конце пишет: "Какой номер превратить в сценарий?"<br>Вы просто пишете в чат: "Пиши номер 3" (или "3").<br>Нейросеть сама берет тему, исторический пример, миф и угрозу из третьего варианта и выдает готовый, жесткий сценарий по 5 актам.</p>
+                    </div>
+                </div>
+
+                <div class="mb-2 mt-6">
+                    <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>4️⃣</span> Мастер-промпт (Настройка Арт-директора)</h3>
+                    <p class="text-[12px] text-neutral-400 mb-3 leading-relaxed">Вставь в Gemini/Claude.</p>
+                    
+                    <div class="prompt-box">
+                        <button onclick="copyPrompt('prompt-text-2', this)" class="copy-btn">Копировать</button>
+                        <div id="prompt-text-2" class="prompt-text">Role & Context:
+Действуй как элитный Арт-директор и эксперт по написанию промптов для генераторов изображений. Твоя задача — создавать идеальные, высокодетализированные промпты на английском языке для визуализации YouTube-сценариев в нише "Doomsday Finance".
+Visual Style (Стиль изображений):
+Все изображения должны генерироваться в едином, строгом стиле. Это:
+
+Clean-line narrative illustration (детализированная сюжетная иллюстрация с четкими контурами).
+Стиль дорогого графического романа или комикса (Graphic novel / editorial comic book illustration).
+Теплая, слегка приглушенная цветовая палитра (часто имитирующая закатное или послеполуденное освещение).
+Никакого гиперреализма или 3D-рендеров. Только качественная, серьезная 2D-иллюстрация.
+Внимание к мелким деталям быта (счета на столе, старые телевизоры, графики, таблички "For Sale").
+Твоя задача (Workflow):
+Когда я дам тебе сценарий, ты должен:
+
+Разбить его на логические визуальные сцены (примерно по 1 картинке на каждые 15–20 секунд текста).
+Проанализировать эмоцию и суть каждой сцены.
+Написать для каждой сцены готовый промпт на английском языке, который будет включать описание персонажей, действий, окружения, освещения и обязательную приписку с нашим фирменным визуальным стилем.
+Формат выдачи для каждой сцены:Сцена #[Номер]
+
+Текст диктора: [Кусок сценария, который звучит в этот момент]
+Идея кадра: [Короткое описание на русском, что происходит на экране]
+Prompt: [Сам промпт на английском языке. Он должен начинаться с описания сцены и ВСЕГДА заканчиваться фразой: "..., rendered in a clean-line graphic novel style, editorial comic book illustration, warm color palette, precise dark contours, highly detailed background, no photorealism."]
+Жди моего сценария. Напиши "Готов", если понял задачу.</div>
+                    </div>
+                </div>
+
+                <div class="mb-4 mt-6">
+                    <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>5️⃣</span> Шаг 2: Командный промпт (Генерация под сценарий)</h3>
+                    <p class="text-[12px] text-neutral-400 mb-3 leading-relaxed">Как только Арт-Директор ответит «Готов», скопируй этот текст и вставь вместе со своим готовым сценарием.</p>
+                    
+                    <div class="prompt-box">
+                        <button onclick="copyPrompt('prompt-text-3', this)" class="copy-btn">Копировать</button>
+                        <div id="prompt-text-3" class="prompt-text">Вот мой сценарий для видео. Разбей его на сцены и напиши промпты для генерации изображений строго по твоим инструкциям и заданному визуальному стилю:
+[ВСТАВИТЬ ПОЛНЫЙ ТЕКСТ СЦЕНАРИЯ СЮДА]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-card mb-6 opacity-60">
+            <div class="w-full p-6 flex justify-between items-center text-left">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center text-xl grayscale">
+                        🔒
+                    </div>
+                    <div>
+                        <span class="text-[9px] font-black uppercase tracking-widest text-neutral-500 mb-1 block">Скоро</span>
+                        <h2 class="font-syne text-xl font-bold text-neutral-400">Новая связка</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 text-center">
+            <button onclick="goToBot()" class="w-full bg-cherry text-white py-4 rounded-xl font-bold text-[13px] tracking-widest uppercase shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:scale-[0.98] transition-transform">
+                🔗 ЗАБРАТЬ ПОЛНЫЙ ГАЙД →
+            </button>
+            <p class="text-center text-xs text-neutral-500 mt-4">
+                Доступ к интерактивной платформе открывается мгновенно.
+            </p>
+            
+            <div class="mt-8 pt-6 border-t border-dashed border-white/10 text-center">
+                <p class="text-[13px] text-neutral-400 mb-4 leading-relaxed">
+                    👀 Сомневаешься? Загляни в мой Telegram-канал. Там я бесплатно делюсь моими ИИ-софтами и разбираю новые ниши каждую неделю.
+                </p>
+                <a href="https://t.me/cherry_amore_diary" target="_blank" class="inline-block px-5 py-3 bg-cherry/10 text-cherry font-bold text-sm rounded-xl border border-cherry/20 hover:bg-cherry/20 transition-colors" style="text-decoration: none;">
+                    🍒 Мой бесплатный TG-канал
+                </a>
+            </div>
+
+            <button onclick="window.location.href='hub.html'" class="text-[10px] text-neutral-600 font-bold uppercase tracking-widest mt-8 p-2 hover:text-white transition-colors">
+                Назад в меню
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.setHeaderColor('#050505');
+        window.Telegram.WebApp.setBackgroundColor('#050505');
+
+        function toggleAccordion(id, btn) {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            const content = document.getElementById(id);
+            const chevron = btn.querySelector('.chevron');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('rotated');
+            }
+        }
+
+        function copyPrompt(textId, btn) {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
+            
+            const textToCopy = document.getElementById(textId).innerText;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = '✅ Скопировано';
+                btn.classList.add('success');
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('success');
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования: ', err);
+                btn.innerText = 'Ошибка ❌';
+                setTimeout(() => btn.innerText = 'Копировать', 2000);
+            });
+        }
+
+        function goToBot() {
+            const tg = window.Telegram.WebApp;
+            const botLink = "https://t.me/cherryamore_auth_bot?start=pay";
+            if (tg.platform && tg.platform !== "unknown") {
+                tg.openTelegramLink(botLink);
+                tg.close();
+            } else { window.location.href = botLink; }
+        }
+    </script>
+</body>
+</html>
